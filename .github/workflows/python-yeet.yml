@@ -27,6 +27,7 @@ jobs:
         with:
           # Version range or exact version of a Python version to use, using SemVer's version range syntax.
           python-version: 3.8
+          architecture: aarch64
 
       # Runs a single command using the runners shell
       - name: Create Package Directory
