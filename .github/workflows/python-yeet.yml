@@ -23,11 +23,7 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       - name: Install Python
-        uses: actions/setup-python@v2.3.1
-        with:
-          # Version range or exact version of a Python version to use, using SemVer's version range syntax.
-          python-version: 3.8
-          architecture: aarch64
+        run: sudo apt-get install gcc python3.8 python3-pip
 
       # Runs a single command using the runners shell
       - name: Create Package Directory
