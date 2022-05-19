@@ -1,0 +1,36 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
+
+name: build-lambda-layers
+
+on:
+ workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: ['x86_64', 'amd64']
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Docker Setup QEMU
+      uses: docker/setup-qemu-action@v2.0.0
+      
+    - name: Build Python Layer
+      
+      run: |
+        docker run --rm --entrypoint bash --workdir /src --volume /lambda-layer:/lambda-layer --platform linux/${{ matrix.arch }} public.ecr.aws/lambda/python:3.8 pip install --no-cache-dir --disable-pip-version-check --no-warn-script-location --compile --target /lambda-layer/python/lib/python3.8/site-packages azure-datalake-store
+        docker run --rm --entrypoint bash --workdir /src --volume /lambda-layer:/lambda-layer --platform linux/${{ matrix.arch }} public.ecr.aws/lambda/python:3.9 pip install --no-cache-dir --disable-pip-version-check --no-warn-script-location --compile --target /lambda-layer/python/lib/python3.9/site-packages azure-datalake-store
+        cd /lambda-layer
+        zip -q -r azure-datalake-store_python3_${{ matrix.arch }}.zip ./
+        
+    - name: Upload a Build Artifact
+      uses: actions/upload-artifact@v3.0.0
+      with:
+
+        path: azure-datalake-store_python3_${{ matrix.arch }}.zip
+        retention-days: 1
